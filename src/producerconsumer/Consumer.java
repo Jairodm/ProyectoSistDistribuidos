@@ -1,9 +1,5 @@
 package producerconsumer;
 
-/****** DHIRAJ D GANDHI ********/
-// This is client program which connects to server.
-// It send request for Critical Section when it wants to access it
-// It waits till the time Critical Section is empty
 
 import java.io.*;
 import java.net.*;
