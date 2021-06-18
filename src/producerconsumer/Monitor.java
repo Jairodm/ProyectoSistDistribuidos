@@ -29,6 +29,7 @@ public class Monitor
                         e.printStackTrace();
                     }
                     System.out.println("PRODUCE");
+                    System.out.println("Hay: " + tienda.cont);
                 }
             }
         });
@@ -47,14 +48,17 @@ public class Monitor
             @Override
             public void run()
             {
+                int cantidad = 0;
                 while(true){
+                    String mensaje = null;
                     try {
-                        in.readLine();
+                        mensaje = in.readLine();
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
+                    cantidad = Integer.parseInt(String.valueOf(mensaje));
 
-                    int item = tienda.get();
+                    int item = tienda.get(cantidad);
 
                     out.println(item);
                 }
@@ -81,14 +85,18 @@ public class Monitor
                     System.err.println("Contenedor: Error en put -> " + e.getMessage());
                 }
             }
-            Thread.sleep(10000);
+            Thread.sleep(5000);
             cont = cont + value;
-            notify();
+            if (cont > 0) {
+                notifyAll();
+            }
         }
 
-        public synchronized int get()
+        public synchronized int get(int cantidad)
         {
-            while (cont == 0)
+            cont = cont - cantidad;     //descuenta primero la cantidad
+            notify();                   //notifica al productor que consumió, y el productor verifica si hay suficientes
+            while (cont <= 0)
             {
                 try
                 {
@@ -99,8 +107,6 @@ public class Monitor
                     System.err.println("Contenedor: Error en get -> " + e.getMessage());
                 }
             }
-            cont--;
-            notify();
             return cont;
         }
 

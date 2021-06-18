@@ -20,11 +20,13 @@ public class Consumer
             String console_inp=sc.readLine();
 
             if(console_inp.equalsIgnoreCase("Yes")){
-                out.println("CONSUME");
+                System.out.println("Cuanto quieres consumir?");
+                console_inp=sc.readLine();
+                out.println(console_inp);       //envia por socket la cantidad por consola
 
-                String item=in.readLine();
+                String item=in.readLine();      //recibe por socket
 
-            System.out.println("Consumer consumed 1, quedan "  + item);
+                System.out.println("Consumer consumed, quedan "  + item);
             }
 
 
