@@ -13,8 +13,7 @@ public class Monitor
     public static void main(String args[])throws IOException, InterruptedException
     {
         final Tienda tienda = new Tienda();
-        ServerSocket s=new ServerSocket(7000);
-        BufferedReader sc = new BufferedReader(new InputStreamReader(System.in));
+        DatagramSocket socketUDP = new DatagramSocket(6789);
 
         // Create producer thread
         Thread producer = new Thread(new Runnable()
@@ -36,31 +35,40 @@ public class Monitor
 
         producer.start();
 
-        //Accept consumer
-        Socket ss2=s.accept();
-
         // Create consumer thread
         Thread consumer = new Thread(new Runnable()
         {
-            PrintStream out = new PrintStream(ss2.getOutputStream());
-            BufferedReader in = new BufferedReader(new InputStreamReader(ss2.getInputStream()));
-
             @Override
             public void run()
             {
-                int cantidad = 0;
-                while(true){
-                    String mensaje = null;
-                    try {
-                        mensaje = in.readLine();
-                    } catch (IOException e) {
-                        e.printStackTrace();
+
+                try {
+                    while(true){
+                        byte[] buffer = new byte[2];
+                        DatagramPacket peticion = new DatagramPacket(buffer, buffer.length);
+                        socketUDP.receive(peticion);
+
+                        System.out.print("Datagrama recibido del host: " + peticion.getAddress());
+                        System.out.println(" desde el puerto remoto: " + peticion.getPort() + " " + new String(peticion.getData()));
+
+                        String cantidadString = new String(peticion.getData());             //Obtener el mensaje en bytes y pasarlo a string
+                        if (cantidadString != null) {                                       //Por alguna razon el mensaje al pasarlo a string
+                            cantidadString = cantidadString.trim();                         //contine espacios en blanco y se debe recortar
+                        }
+                        int cantidad = Integer.valueOf(cantidadString);                     //pasar de string a int
+
+                        int item = tienda.get(cantidad);
+                        String respuesta = Integer.toString(item);
+                        buffer = respuesta.getBytes();
+
+                        DatagramPacket respuestaDatagrama = new DatagramPacket(buffer, buffer.length, peticion.getAddress(), peticion.getPort());
+
+                        // Enviamos la respuesta, que es un eco
+                        socketUDP.send(respuestaDatagrama);
+
                     }
-                    cantidad = Integer.parseInt(String.valueOf(mensaje));
-
-                    int item = tienda.get(cantidad);
-
-                    out.println(item);
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             }
         });

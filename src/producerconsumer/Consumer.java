@@ -8,28 +8,47 @@ public class Consumer
 {
     public static void main(String args[])throws IOException, InterruptedException
     {
-        Socket s=new Socket("localhost",7000);
-        BufferedReader sc = new BufferedReader(new InputStreamReader(System.in));
+        try {
+            DatagramSocket socketUDP = new DatagramSocket();
+            byte[] buferp;
+            InetAddress hostServidor = InetAddress.getByName("localhost");
+            int puertoServidor = 6789;
+            boolean flag = true;
 
-        //Streams
-        PrintStream out = new PrintStream(s.getOutputStream());
-        BufferedReader in = new BufferedReader(new InputStreamReader(s.getInputStream()));
+            BufferedReader sc = new BufferedReader(new InputStreamReader(System.in));
 
-        while(true){
-            System.out.println("Want to consume?");
-            String console_inp=sc.readLine();
 
-            if(console_inp.equalsIgnoreCase("Yes")){
-                System.out.println("Cuanto quieres consumir?");
-                console_inp=sc.readLine();
-                out.println(console_inp);       //envia por socket la cantidad por consola
 
-                String item=in.readLine();      //recibe por socket
+            while(true && flag){
+                System.out.println("Want to consume?");
+                String console_inp=sc.readLine();
 
-                System.out.println("Consumer consumed, quedan "  + item);
+                if(console_inp.equalsIgnoreCase("Yes")){
+                    System.out.println("Cuanto quieres consumir?");
+
+                    console_inp=sc.readLine();
+                    buferp = console_inp.getBytes(); //lo pasamos a bytes para meterlo en el paquete
+
+                    // Construimos un datagrama para enviar el mensaje al servidor
+                    DatagramPacket cuanto = new DatagramPacket(buferp, buferp.length, hostServidor, puertoServidor);
+
+                    // Enviamos el datagrama
+                    socketUDP.send(cuanto); //envia por socket la cantidad de consola
+
+                    byte[] buferResSer = new byte[50];
+                    DatagramPacket respuesta = new DatagramPacket(buferResSer, buferResSer.length);
+                    socketUDP.receive(respuesta);
+
+                    System.out.println("Consumer consumed, quedan " + new String(respuesta.getData()));
+                }else{
+                    socketUDP.close();
+                    flag = false;
+                }
+
             }
 
-
+        } catch (IOException e) {
+            System.out.println("IO: " + e.getMessage());
         }
 
     }
