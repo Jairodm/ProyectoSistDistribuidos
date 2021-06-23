@@ -5,12 +5,14 @@ e iniciar la conexion con el cliente. Dentro tiene la clase anidada tienda que h
 el papel de monitor al notificar al productor o colocar en espera al consumidor.
 */
 
+import Frames.TiendaA;
+
 import java.io.*;
 import java.net.*;
 
 public class Monitor
 {
-    public static void main(String args[])throws IOException, InterruptedException
+    public static void main(String args[], TiendaA tiendaFrame)throws IOException, InterruptedException
     {
         final Tienda tienda = new Tienda();
         DatagramSocket socketUDP = new DatagramSocket(6789);
@@ -47,6 +49,7 @@ public class Monitor
                         byte[] buffer = new byte[2];
                         DatagramPacket peticion = new DatagramPacket(buffer, buffer.length);
                         socketUDP.receive(peticion);
+                        tiendaFrame.textArea1.append("\n hola desde el servidor");
 
                         System.out.print("Datagrama recibido del host: " + peticion.getAddress());
                         System.out.println(" desde el puerto remoto: " + peticion.getPort() + " " + new String(peticion.getData()));
