@@ -28,7 +28,8 @@ public class TiendaA {
     public String cantidadProducto;
 
     public TiendaA() {
-        textArea1.setSize(200,200);
+        textArea1.setSize(150,150);
+        spinner1.setSize(100,100);
         spinner1.setVisible(false);
         button1.addActionListener(new ActionListener() {
             @Override
@@ -65,6 +66,7 @@ public class TiendaA {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();
         frame.setVisible(true);
+        frame.setResizable(false);
 
         frame.setSize(500, 500);
         //frame.setLocation(200, 200);
@@ -73,7 +75,7 @@ public class TiendaA {
 
 
 
-        Monitor.main(args, tienda);
+        //Monitor.main(args);
         //Consumer.main(args);
 
     }
